@@ -5,7 +5,7 @@ echo "installing dependencies"
 npm install
 
 echo "building docker image"
-docker build -t CoolestV .
+docker build -t coolestv .
 
 echo "launching app with docker Compose"
 docker-compose up -d --build
