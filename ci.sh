@@ -1,18 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "Running black..."
-black .
+echo "installing dependencies"
+npm install
 
-echo "Running flake8..."
-flake8 .
+echo "building docker image"
+docker build -t CoolestV .
 
-echo "Running tests..."
-pytest
-
-echo "Building Docker image..."
-docker build -t availability-tracker .
-
-echo "Launching app with Docker Compose..."
+echo "launching app with docker Compose"
 docker-compose up -d --build
 
