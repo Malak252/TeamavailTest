@@ -3,7 +3,7 @@ services:
     build: .
     container_name: coolestv
     ports:
-      - "3000:3000"
+      - "4040:3000"
     environment:
       - NODE_ENV=development
     volumes:
