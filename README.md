@@ -1,68 +1,87 @@
-# Version-1 Project
+# Team Availability Tracker - CI/CD Pipeline Project
 
-A Node.js Express application that serves static files and provides API endpoints for saving history data. The application is containerized with Docker and includes CI/CD pipeline configurations.
+A Node.js Express application with Docker containerization and CI/CD pipeline.
 
-## Features
+**## Resources helped me with the task**
+https://www.youtube.com/watch?v=tK9Oc6AEnR4&ab_channel=freeCodeCamp.org
+https://www.youtube.com/watch?v=dfTco9hmXEM&ab_channel=RoadsideCoder
+https://www.youtube.com/watch?v=l5k1ai_GBDE&ab_channel=TechWorldwithNana
+https://www.youtube.com/watch?v=Op5jZTQaUgo&ab_channel=CloudKode  
+https://www.youtube.com/watch?v=RFOAPeJiTwU&ab_channel=S3CloudHub
 
-- **Static File Serving**: Serves frontend files from the `public` directory
-- **API Endpoints**: RESTful API for saving history data
-- **File Management**: Serves input JSON files and output data
-- **Docker Support**: Fully containerized application
-- **CI/CD Ready**: Includes Jenkins pipeline and shell script for automated deployment
+**## Project Tasks**
+1. **Set Up the Project**                                                                         [Done]
+   -  Clone the project repository.
+   -  Create a `.gitignore` file if missing.
+   -  Install the required dependencies locally.
+2. **Write a Bash Script (`ci.sh`)**                                                              [Done]
+   This script should:
+   -  Run code formatting and linting.
+   -  Run tests.
+   -  Build a Docker image of the application.
+   -  Start the application using Docker Compose.
+3. **Dockerize the App**                                                                          [Done]
+   -  Write a `Dockerfile` to build the application image.
+   -  Use best practices for image building (e.g., smaller base images, clean layers).
+4. **Use Docker Compose**                                                                         [Done]
+   -  Create a `docker-compose.yml` file.
+   -  Include the app and any required services like Redis or PostgreSQL.
+   -  Configure volumes and ports properly.
+5. **Validate and Document**                                                                      [Done]
+   -  Run your full pipeline locally to ensure it works.
+   -  Create a `README.md` file that explains:
+     -  How to run the app locally.
+     -  How your pipeline works.
+     -  What each part of your code and setup does.
 
-## Prerequisites
+**## Steps**
 
-- Node.js 18+ (for local development)
-- Docker (for containerized deployment)
-- Docker Compose (for orchestrated deployment)
+**How to write ci.sh file**
+1. echo $SHELL >> output is first line in our file "path"
+2. set -e >> that line tells bash to immediately stop if any command fails
+3. after that you write what u would like to run in your CMD
+4. to run "./ci.sh" u should run "chmod u+x ci.sh" first
 
-## Installation
+**why .gitignore**
+1. Here I add the files that I don't want to push
+   - node_modules/
+   - .env
+   - .DS_Store
 
-### Local Development
+**why .dockerignore**
+1. so that I don't copy certain files (in my case node_modules)
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd version-1
-```
+**Docker**
+**Dockerfile**
+- FROM node:20-alpine >> lightweight base image
+- WORKDIR /app >> set working directory
+- COPY package*.json ./ >> copy package files first for better caching
+- RUN npm install >> install dependencies
+- COPY . . >> copy application code
+- EXPOSE 3000 >> 3000 is the port my app exposed on
+- CMD ["npm","start"] >> start the application
 
-2. Install dependencies:
-```bash
-npm install
-```
+**docker-compose.yml**
+- services: app >> define the app service
+- build: . >> build from current directory
+- ports: "4040:3000" >> map host port 4040 to container port 3000
+- environment: NODE_ENV=development >> set environment variable
+- restart: unless-stopped >> restart policy
 
-3. Start the application:
-```bash
-npm start
-```
+**Jenkins Pipeline**
+**Jenkinsfile**
+- pipeline with agent any >> run on any available agent
+- stages: checkout, install dependencies, build docker image, run docker compose
+- post actions: success and failure messages
 
-The application will be available at `http://localhost:3000`
+**Terraform**
+**main.tf**
+- provider: docker >> use Docker provider
+- docker_network: teamavail_network >> create custom network
+- docker_image: coolestv >> build image from Dockerfile
+- docker_container: app >> deploy container with proper configuration
 
-### Docker Deployment
-
-#### Using Docker Compose (Recommended)
-
-1. Build and run the application:
-```bash
-docker-compose up -d --build
-```
-
-The application will be available at `http://localhost:4040`
-
-#### Using Docker directly
-
-1. Build the Docker image:
-```bash
-docker build -t coolestv .
-```
-
-2. Run the container:
-```bash
-docker run -p 4040:3000 coolestv
-```
-
-## Project Structure
-
+**## Project Structure**
 ```
 version-1/
 ├── server.js              # Main Express server
@@ -74,142 +93,102 @@ version-1/
 ├── ci.sh              # Bash script for CI/CD
 ├── .gitignore         # Git ignore rules
 ├── .dockerignore      # Docker ignore rules
-├── public/            # Static frontend files (not included in files)
+├── terraform/         # Terraform infrastructure configuration
+│   └── main.tf        # Main Terraform configuration
+├── public/            # Static frontend files
 ├── input/             # Input JSON files directory
 └── output/            # Output files directory (history.json)
 ```
 
-## API Endpoints
+**## How to run the app locally**
 
-### POST `/save-history`
-Saves history data to `output/history.json`
-
-**Request Body:**
-```json
-{
-  "data": "your history data here"
-}
-```
-
-**Response:**
-- `200 OK`: "Saved" - History successfully saved
-- `500 Internal Server Error`: "Failed to save history.json" - Error occurred
-
-### Static File Routes
-
-- **Frontend**: `GET /` - Serves static files from `public/` directory
-- **Input Files**: `GET /input/*` - Serves JSON files from `input/` directory  
-- **Output Files**: `GET /output/*` - Serves files from `output/` directory
-
-## Environment Variables
-
-The application uses the following environment variables:
-
-- `NODE_ENV`: Set to `development` in Docker Compose configuration
-- `PORT`: Application port (defaults to 3000)
-
-## Development
-
-### Scripts
-
-- `npm start`: Start the production server
-- `npm test`: Run tests (currently not implemented)
-
-### File Structure
-
-- **server.js**: Main application server with Express configuration
-- **public/**: Frontend static files (HTML, CSS, JS)
-- **input/**: Directory for input JSON files
-- **output/**: Directory for generated output files
-
-## Docker Configuration
-
-### Dockerfile
-- Based on `node:20-alpine` for lightweight deployment
-- Exposes port 3000
-- Copies package files first for better layer caching
-- Installs dependencies and copies application code
-
-### Docker Compose
-- Maps host port 4040 to container port 3000
-- Mounts current directory for development
-- Sets `NODE_ENV=development`
-- Configured with `restart: unless-stopped`
-
-## CI/CD Pipeline
-
-### Jenkins Pipeline (Jenkinsfile)
-The project includes a Jenkins pipeline with the following stages:
-
-1. **Checkout**: Retrieves source code from SCM
-2. **Install Dependencies**: Runs `npm install`
-3. **Build Docker Image**: Creates Docker image tagged as `coolestv`
-4. **Deploy**: Runs application using Docker Compose
-
-### Shell Script (ci.sh)
-Alternative deployment script that:
-- Installs Node.js dependencies
-- Builds Docker image
-- Launches application with Docker Compose
-
-## Usage Examples
-
-### Save History Data
+**Local Development**
 ```bash
-curl -X POST http://localhost:4040/save-history \
-  -H "Content-Type: application/json" \
-  -d '{"timestamp": "2024-01-01", "action": "user_login"}'
+npm install
+npm start
 ```
+App available at: http://localhost:3000
 
-### Access Input Files
+**Using Docker Compose**
 ```bash
-curl http://localhost:4040/input/data.json
+docker-compose up -d --build
 ```
+App available at: http://localhost:4040
 
-### Access Output Files
+**Using CI Script**
 ```bash
-curl http://localhost:4040/output/history.json
+chmod +x ci.sh
+./ci.sh
 ```
 
-## Troubleshooting
+**Using Terraform**
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
 
-### Common Issues
+**## How the pipeline works**
 
-1. **Port Already in Use**
-   - Change the port mapping in `docker-compose.yml`
-   - Or stop other services using port 4040
+**ci.sh Script Flow:**
+1. #!/bin/bash >> defines shell interpreter
+2. set -e >> exit on any command failure
+3. echo "installing dependencies" >> install npm packages
+4. echo "building docker image" >> build Docker image tagged as 'coolestv'
+5. echo "launching app with docker Compose" >> start with docker-compose
 
-2. **Docker Build Fails**
-   - Ensure Docker is running
-   - Check that all required files are present
+**Jenkins Pipeline Flow:**
+1. **checkout** >> get source code from SCM
+2. **install dependencies** >> npm install
+3. **build docker image** >> docker build -t coolestv .
+4. **run docker compose** >> docker compose up -d --build
+5. **post actions** >> success/failure messages
 
-3. **Permission Errors**
-   - Ensure the `output` directory exists and is writable
-   - Check Docker volume permissions
+**## API Endpoints**
 
-### Logs
+**POST `/save-history`**
+- Saves history data to output/history.json
+- Request: JSON with data field
+- Response: "Saved" or error message
 
-View application logs:
+**Static Routes:**
+- GET / >> serves public/ directory
+- GET /input/* >> serves input/ JSON files
+- GET /output/* >> serves output/ files
+
+**## Environment Variables**
+- NODE_ENV: development (set in docker-compose)
+- PORT: 3000 (default application port)
+
+**## Troubleshooting**
+
+**Common Issues:**
+1. **Port 4040 already in use** >> change port in docker-compose.yml
+2. **Docker build fails** >> ensure Docker is running and files exist
+3. **Permission errors** >> check output directory permissions
+4. **ci.sh won't run** >> run chmod +x ci.sh first
+
+**View Logs:**
 ```bash
 # Docker Compose
 docker-compose logs -f
 
-# Docker container
-docker logs <container-id>
+# Specific container
+docker logs coolestv
 ```
 
-## Contributing
+**## What each part does**
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+**server.js** >> Express application with static file serving and API endpoints
+**package.json** >> Node.js dependencies and scripts configuration
+**Dockerfile** >> Instructions to build the application Docker image
+**docker-compose.yml** >> Orchestration configuration for running containers
+**Jenkinsfile** >> CI/CD pipeline definition for automated deployment
+**ci.sh** >> Bash script for manual deployment automation
+**.gitignore** >> Files to exclude from Git version control
+**.dockerignore** >> Files to exclude from Docker build context
+**terraform/main.tf** >> Infrastructure as Code for Docker deployment
 
-## License
-
-This project is licensed under the ISC License.
-
-## Support
-
-For issues and questions, please create an issue in the project repository.
+**## License**
+ISC License
